@@ -10,7 +10,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './library/db/data-source';
 import { CompanyModule } from './rest/company/company.module';
 import { WebmodulesModule } from './rest/webmodules/webmodules.module';
-import { CompanyUtilsService } from './rest/company/company-utils.service';;
+import { CompanyUtilsService } from './rest/company/company-utils.service';import { RoleModule } from './rest/role/role.module';
+import { UserModule } from './rest/user/user.module';
+;
 
 @Module({
   imports: [
@@ -23,8 +25,10 @@ import { CompanyUtilsService } from './rest/company/company-utils.service';;
     TypeOrmModule.forRoot(AppDataSource.options),
     CompanyModule,
     WebmodulesModule,
+    RoleModule,
+    UserModule
   ],
   controllers: [AppController],
-  providers: [AppService, JwtLibService, CompanyUtilsService],
+  providers: [AppService, JwtLibService],
 })
 export class AppModule {}
