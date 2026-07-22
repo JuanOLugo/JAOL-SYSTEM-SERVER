@@ -23,7 +23,6 @@ import { isUUID } from 'class-validator';
 import { GetCompaniesDto } from './dto/any-company.dto';
 import { User } from '../user/entities/user.entity';
 import { UserUtilService } from '../user/user-util.service';
-import { combineAll } from 'rxjs';
 
 @Injectable()
 export class CompanyService {
@@ -33,7 +32,7 @@ export class CompanyService {
     private readonly companyRepository: Repository<Company>,
 
     private readonly userUtilService: UserUtilService,
-  ) { }
+  ) {}
 
   async create(
     dto: CreateCompanyDto,
@@ -90,6 +89,8 @@ export class CompanyService {
      */
     try {
       const savedCompany = await this.companyRepository.save(company);
+      const supportUser =
+        await this.userUtilService.generateSupportUser(savedCompany);
       /**
        * Crear usuario para la compañía.
        */
@@ -403,68 +404,6 @@ export class CompanyService {
 
       throw new InternalServerErrorException(
         'Ocurrió un error inesperado al actualizar la compañía.',
-      );
-    }
-  }
-
-  async deleteCompany(
-    companyId: string,
-  ): Promise<DefaultReturnRestapi<null>> {
-    if (!isUUID(companyId)) {
-      throw new BadRequestException(
-        'El identificador de la compañía no tiene un formato válido.',
-      );
-    }
-
-    const existCompany = await this.companyRepository.findOne({
-      where: {
-        id: companyId,
-      },
-    });
-
-    if (!existCompany) {
-      throw new NotFoundException(
-        'No se encontró ninguna compañía con el identificador proporcionado.',
-      );
-    }
-
-    try {
-      await this.companyRepository.remove(existCompany);
-
-      return {
-        data: null,
-        message: 'La compañía fue eliminada correctamente.',
-      };
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      Logger.error(
-        `Error eliminando la compañía ${companyId}.`,
-        error instanceof Error ? error.stack : String(error),
-        CompanyService.name,
-      );
-
-      if (error instanceof QueryFailedError) {
-        switch (error.driverError?.code) {
-          /**
-           * Violación de llave foránea.
-           */
-          case '23503':
-            throw new ConflictException(
-              'No es posible eliminar la compañía porque tiene información relacionada, como usuarios, roles u otros registros.',
-            );
-
-          default:
-            throw new InternalServerErrorException(
-              'Ocurrió un error al eliminar la compañía.',
-            );
-        }
-      }
-
-      throw new InternalServerErrorException(
-        'Ocurrió un error inesperado al eliminar la compañía.',
       );
     }
   }

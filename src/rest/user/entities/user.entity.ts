@@ -54,7 +54,10 @@ export class User extends BaseEntityAudit {
   @OneToMany(() => UserRole, (role) => role.user)
   roles: UserRole[];
 
-  @OneToOne(() => PrivateUser, (privateUser) => privateUser.user)
+  @OneToOne(() => PrivateUser, (privateUser) => privateUser.user, {
+    cascade: ['insert', 'update', 'remove'],
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({
     name: 'private_user_id',
   })

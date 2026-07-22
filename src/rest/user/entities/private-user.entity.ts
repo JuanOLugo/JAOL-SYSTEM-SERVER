@@ -20,9 +20,6 @@ export class PrivateUser extends BaseEntityAudit {
   })
   refreshToken?: string;
 
-  @OneToOne(() => User, (user) => user.privateUser, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
+  @OneToOne(() => User, (user) => user.privateUser)
   user: User;
 }
